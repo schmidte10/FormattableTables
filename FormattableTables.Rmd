@@ -1,0 +1,10 @@
+---
+title: "FormattableTables"
+author: "Elliott Schmidt"
+date: "11/03/2022"
+output: html_document
+---
+
+```{r setup} 
+
+```
