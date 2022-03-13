@@ -3,7 +3,8 @@ library(usethis)
 library(dataaimsr) 
 library(purrr)
 library(tidyverse)
-
+library(lubridate)
+library(reshape2)
 #--- API Key should be stored, BUT NOT pushed to GitHUB ---#
 #usethis::edit_r_environ()
 my_api_key <- Sys.getenv("AIMS_DATAPLATFORM_API_KEY") 
@@ -104,13 +105,54 @@ head(CairnsTemp_summary); head(CairnsTemp_summary2)
 # Now all data is included and we can get on too making tables
 
 #--- formatting data for table ---# 
-<<<<<<< HEAD
-load("CairnsTemp2.Rda") 
+#load dataframe
+load("CairnsTemp2.Rda")  
 
-=======
-print(as_tibble(CairnsTemp_summary2), n=length(CairnsTemp_summary$site)) 
+CairnsTemp2 <- CairnsTemp2 %>% 
+  mutate(time = as_date(time)) %>% #reformat date column as a 'date' variable 
+  separate(time, 
+           sep="-", 
+           remove=FALSE, 
+           into = c("YEAR", "MONTH", "DAY")) 
 
-head(CairnsTemp_summary); head(CairnsTemp_summary2) 
-flsdljfdhskjfhsdkj
+#extracting summer months
+summer <- CairnsTemp2 %>%  
+  mutate(YEAR = as.numeric(YEAR), 
+         MONTH = as.numeric(MONTH), 
+         DAY = as.numeric(DAY)) %>%
+  filter(MONTH == c(1,2,3,12)); unique(summer$MONTH) 
 
->>>>>>> 6e471041832c839603f45939adc3df05e30fab01
+#--- gather yearly means ---#
+mst <- summer %>% 
+  group_by(site, YEAR)%>% 
+  na.omit() %>%
+  summarise(temp_mean = mean(cal_val), 
+             max_mean = mean(cal_max), 
+             depth_mean = mean(depth), 
+             range_mean = mean(cal_max - cal_min)) 
+
+#--- getting data into table format in R ---# 
+mst_temp <- mst %>% 
+  dcast(site~YEAR, value.var = "temp_mean") 
+colnames(mst_temp)[2:7] = paste0('Mean_',colnames(mst_temp)[2:7])
+mst_max <- mst %>% 
+  dcast(site~YEAR, value.var = "max_mean")
+colnames(mst_max)[2:7] = paste0('Max_',colnames(mst_max)[2:7])
+mst_depth <- mst %>% 
+  dcast(site~YEAR, value.var = "depth_mean")
+colnames(mst_depth)[2:7] = paste0('Depth_',colnames(mst_depth)[2:7])
+mst_range <- mst %>% 
+  dcast(site~YEAR, value.var = "range_mean") 
+colnames(mst_range)[2:7] = paste0('Range_',colnames(mst_range)[2:7])
+
+# join all the data together
+mst_all <- full_join(mst_temp,mst_max, by="site") %>% 
+  full_join(mst_range, by ="site") %>% 
+  full_join(mst_depth[c(1,7)], by = "site"); names(mst_all)
+save(mst_all, file="mst_all.Rda")
+
+#--- put table into formattable ---# 
+# load data
+load("mst_all.RDA") 
+
+
