@@ -103,4 +103,7 @@ head(CairnsTemp_summary); head(CairnsTemp_summary2)
 # Now all data is included and we can get on too making tables
 
 #--- formatting data for table ---# 
+print(as_tibble(CairnsTemp_summary2), n=length(CairnsTemp_summary$site)) 
+head(CairnsTemp_summary); head(CairnsTemp_summary2) 
 
+flsdljfdhskjfhsdkj
