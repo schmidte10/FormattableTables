@@ -5,7 +5,7 @@ library(purrr)
 library(tidyverse)
 
 #--- API Key should be stored, BUT NOT pushed to GitHUB ---#
-usethis::edit_r_environ()
+#usethis::edit_r_environ()
 my_api_key <- Sys.getenv("AIMS_DATAPLATFORM_API_KEY") 
 
 #--- Importing data from AIMS temperature loggers - single site ---#
@@ -97,13 +97,12 @@ CairnsTemp_summary2 <- CairnsTemp2 %>%
     earliest_date = min(time), 
     latest_date = max(time), 
     days_obsrvd = length(time)) 
-
+#save dataframe
+save(CairnsTemp2, file="CairnsTemp2.Rda")
 print(as_tibble(CairnsTemp_summary2), n=length(CairnsTemp_summary$site)) 
 head(CairnsTemp_summary); head(CairnsTemp_summary2)
 # Now all data is included and we can get on too making tables
 
 #--- formatting data for table ---# 
-print(as_tibble(CairnsTemp_summary2), n=length(CairnsTemp_summary$site)) 
-head(CairnsTemp_summary); head(CairnsTemp_summary2) 
+load("CairnsTemp2.Rda") 
 
-flsdljfdhskjfhsdkj
