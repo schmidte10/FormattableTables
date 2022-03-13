@@ -74,7 +74,8 @@ CairnsTemp_summary <- CairnsTemp %>%
   summarise( 
     earliest_date = min(time), 
     latest_date = max(time), 
-    days_obsrvd = length(time)); results_summary 
+    days_obsrvd = length(time)); 
+print(as_tibble(CairnsTemp_summary), n=length(CairnsTemp_summary$site)) 
 
 #--- Importing data from multiple sites (for loop) ---#
 from_date_list = c("2015-01-01","2016-01-01","2017-01-01","2018-01-01","2019-01-01","2020-01-01") 
@@ -97,7 +98,8 @@ CairnsTemp_summary2 <- CairnsTemp2 %>%
     latest_date = max(time), 
     days_obsrvd = length(time)) 
 
-CairnsTemp2_summary; CairnsTemp2_summary2
+print(as_tibble(CairnsTemp_summary2), n=length(CairnsTemp_summary$site)) 
+head(CairnsTemp_summary); head(CairnsTemp_summary2)
 # Now all data is included and we can get on too making tables
 
 #--- formatting data for table ---# 
