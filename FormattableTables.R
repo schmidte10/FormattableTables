@@ -104,6 +104,7 @@ head(CairnsTemp_summary); head(CairnsTemp_summary2)
 
 #--- formatting data for table ---# 
 print(as_tibble(CairnsTemp_summary2), n=length(CairnsTemp_summary$site)) 
-head(CairnsTemp_summary); head(CairnsTemp_summary2) 
 
+head(CairnsTemp_summary); head(CairnsTemp_summary2) 
 flsdljfdhskjfhsdkj
+
