@@ -3,7 +3,7 @@ library(usethis)
 library(dataaimsr) 
 library(purrr)
 library(tidyverse)
-
+library(lubridate)
 #--- API Key should be stored, BUT NOT pushed to GitHUB ---#
 #usethis::edit_r_environ()
 my_api_key <- Sys.getenv("AIMS_DATAPLATFORM_API_KEY") 
@@ -107,5 +107,15 @@ head(CairnsTemp_summary); head(CairnsTemp_summary2)
 #load dataframe
 load("CairnsTemp2.Rda")  
 
+CairnsTemp2 <- CairnsTemp2 %>% 
+  mutate(time = as_date(time)) %>% #reformat date column as a 'date' variable 
+  separate(time, 
+           sep="-", 
+           remove=FALSE, 
+           into = c("YEAR", "MONTH", "DAY")) 
 
-
+summer <- CairnsTemp2 %>%  
+  mutate(YEAR = as.numeric(YEAR), 
+         MONTH = as.numeric(MONTH), 
+         DAY = as.numeric(DAY)) %>%
+  filter(MONTH == c(1,2,3,12)); unique(summer$MONTH)
