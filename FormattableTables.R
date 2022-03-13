@@ -114,8 +114,32 @@ CairnsTemp2 <- CairnsTemp2 %>%
            remove=FALSE, 
            into = c("YEAR", "MONTH", "DAY")) 
 
+#extracting summer months
 summer <- CairnsTemp2 %>%  
   mutate(YEAR = as.numeric(YEAR), 
          MONTH = as.numeric(MONTH), 
          DAY = as.numeric(DAY)) %>%
-  filter(MONTH == c(1,2,3,12)); unique(summer$MONTH)
+  filter(MONTH == c(1,2,3,12)); unique(summer$MONTH) 
+
+#--- gather yearly means ---#
+mst <- summer %>% 
+  group_by(site)%>% 
+  summarise( temp_mean = mean(cal_val), 
+             max_mean = mean(cal_max), 
+             depth_mean = mean(depth), 
+             range_mean = mean(cal_max - cal_min), 
+             na.rm = TRUE)
+
+
+mst <- summer %>% 
+  group_by(site)%>% 
+  na.omit() %>%
+  summarise(temp_mean = mean(cal_val), 
+             max_mean = mean(cal_max), 
+             depth_mean = mean(depth), 
+             range_mean = mean(cal_max - cal_min))
+
+             
+arlginton <- summer %>% 
+  mutate(site = as.character(site)) %>% 
+  filter(site == "Arlington Reef")
