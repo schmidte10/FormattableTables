@@ -104,13 +104,8 @@ head(CairnsTemp_summary); head(CairnsTemp_summary2)
 # Now all data is included and we can get on too making tables
 
 #--- formatting data for table ---# 
-<<<<<<< HEAD
-load("CairnsTemp2.Rda") 
+#load dataframe
+load("CairnsTemp2.Rda")  
 
-=======
-print(as_tibble(CairnsTemp_summary2), n=length(CairnsTemp_summary$site)) 
 
-head(CairnsTemp_summary); head(CairnsTemp_summary2) 
-flsdljfdhskjfhsdkj
 
->>>>>>> 6e471041832c839603f45939adc3df05e30fab01
