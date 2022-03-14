@@ -101,6 +101,13 @@ CairnsTemp_summary2 <- CairnsTemp2 %>%
     earliest_date = min(time), 
     latest_date = max(time), 
     days_obsrvd = length(time)) 
+
+CairnsTemp2 <- CairnsTemp2 %>% 
+  mutate(time = as_date(time)) %>% #reformat date column as a 'date' variable 
+  separate(time, 
+           sep="-", 
+           remove=FALSE, 
+           into = c("YEAR", "MONTH", "DAY")) 
 #save dataframe
 save(CairnsTemp2, file="CairnsTemp2.Rda")
 print(as_tibble(CairnsTemp_summary2), n=length(CairnsTemp_summary$site)) 
@@ -110,14 +117,6 @@ head(CairnsTemp_summary); head(CairnsTemp_summary2)
 #--- formatting data for table ---# 
 #load dataframe
 load("CairnsTemp2.Rda")  
-
-CairnsTemp2 <- CairnsTemp2 %>% 
-  mutate(time = as_date(time)) %>% #reformat date column as a 'date' variable 
-  separate(time, 
-           sep="-", 
-           remove=FALSE, 
-           into = c("YEAR", "MONTH", "DAY")) 
-
 #extracting summer months
 summer <- CairnsTemp2 %>%  
   mutate(YEAR = as.numeric(YEAR), 
@@ -132,7 +131,8 @@ mst <- summer %>%
   summarise(temp_mean = mean(cal_val), 
              max_mean = mean(cal_max), 
              depth_mean = mean(depth), 
-             range_mean = mean(cal_max - cal_min)) 
+             range_mean = mean(cal_max - cal_min)) %>% 
+  ungroup()
 
 #--- getting data into table format in R ---# 
 mst_temp <- mst %>% 
@@ -191,7 +191,6 @@ agg_data <- CairnsTemp4 %>%
             range_mean = mean(cal_max - cal_min)) %>% 
   ungroup() 
 
-mean(CairnsTemp4$cal_max)
 agg_data[nrow(agg_data)+1,] <- list("Difference",
                                     agg_data$temp_mean[2]-agg_data$temp_mean[1], 
                                     agg_data$max_mean[2]- agg_data$max_mean[1], 
