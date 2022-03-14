@@ -101,6 +101,13 @@ CairnsTemp_summary2 <- CairnsTemp2 %>%
     earliest_date = min(time), 
     latest_date = max(time), 
     days_obsrvd = length(time)) 
+
+CairnsTemp2 <- CairnsTemp2 %>% 
+  mutate(time = as_date(time)) %>% #reformat date column as a 'date' variable 
+  separate(time, 
+           sep="-", 
+           remove=FALSE, 
+           into = c("YEAR", "MONTH", "DAY")) 
 #save dataframe
 save(CairnsTemp2, file="CairnsTemp2.Rda")
 print(as_tibble(CairnsTemp_summary2), n=length(CairnsTemp_summary$site)) 
@@ -110,14 +117,6 @@ head(CairnsTemp_summary); head(CairnsTemp_summary2)
 #--- formatting data for table ---# 
 #load dataframe
 load("CairnsTemp2.Rda")  
-
-CairnsTemp2 <- CairnsTemp2 %>% 
-  mutate(time = as_date(time)) %>% #reformat date column as a 'date' variable 
-  separate(time, 
-           sep="-", 
-           remove=FALSE, 
-           into = c("YEAR", "MONTH", "DAY")) 
-
 #extracting summer months
 summer <- CairnsTemp2 %>%  
   mutate(YEAR = as.numeric(YEAR), 
