@@ -68,6 +68,7 @@ aims_data_per_series <- function(series_number, my_api_key, ...) {
   aims_data("temp_loggers", api_key = my_api_key,  summary = "daily",
             filters = list(series_id = series_number, ...))
 }
+
 CairnsTemp <- purrr::map_df(reef_list, aims_data_per_series,
                          my_api_key = my_api_key,
                          from_date = "2015-01-01",
@@ -222,6 +223,9 @@ agg_data[nrow(agg_data)+1,] <- list("Difference",
 agg_data 
 
 #--- density plots ---#
+
+#Note: Make sure your colors are friendly to the colorblind! 
+
 my_temperature_plot <- CairnsTemp4 %>% 
   na.omit() %>% 
   ggplot(aes(cal_val))+
@@ -230,7 +234,8 @@ my_temperature_plot <- CairnsTemp4 %>%
                position = "identity", 
                alpha = 0.8, 
                adjust = 1.5) + 
-  scale_fill_manual(labels = c("Ambient", "Heatwave"), values = c("skyblue", "red")) + 
+  scale_fill_manual(labels = c("Ambient", "Heatwave"), 
+                    values = c("#56B4E9", "#D55E00")) + 
   scale_x_continuous(breaks = seq(21,34,2), 
                      limits = c(21,32))+
   theme_light()+ 
