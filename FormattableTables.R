@@ -5,6 +5,7 @@ library(purrr)
 library(tidyverse)
 library(lubridate)
 library(reshape2)
+library(formattable)
 #--- API Key should be stored, BUT NOT pushed to GitHUB ---#
 #usethis::edit_r_environ()
 my_api_key <- Sys.getenv("AIMS_DATAPLATFORM_API_KEY") 
@@ -148,11 +149,21 @@ colnames(mst_range)[2:7] = paste0('Range_',colnames(mst_range)[2:7])
 # join all the data together
 mst_all <- full_join(mst_temp,mst_max, by="site") %>% 
   full_join(mst_range, by ="site") %>% 
-  full_join(mst_depth[c(1,7)], by = "site"); names(mst_all)
+  full_join(mst_depth[c(1,7)], by = "site") %>% 
+  mutate_if(is.numeric, round, digits = 2); names(mst_all) 
 save(mst_all, file="mst_all.Rda")
 
 #--- put table into formattable ---# 
 # load data
-load("mst_all.RDA") 
-
-
+load("mst_all.RDA")
+mst_all[is.na(mst_all)] = ''
+formattable(mst_all, 
+            align = c("l","r","r","r","r","r","r","r","r","r","r","r","r"
+                      ,"r","r","r","r","r","r","r","r","r","r","r","r","r"),
+            list(site = formatter( 
+              "span",
+              style = ~style(color = "grey", font.weigh = "bold")), 
+              area(col = `Mean_2015`:`Mean_2020`) ~ color_tile("white","red"), 
+              area(col = `Max_2015`:`Max_2020`) ~ color_tile("yellow","red"), 
+              area(col = `Range_2015`:`Range_2020`) ~ color_tile("palegreen","green3"), 
+              Depth_2020 = color_bar("pink", 'proportion', 0.2))) 
