@@ -176,7 +176,6 @@ CairnsRegion_Table = as.datatable(formattable(CairnsRegion_Table)) %>%
   formatStyle(colnames(mst_all2), `text-align` = 'right')
 
 #--- splitting data ---# 
-names(CairnsTemp2)
 CairnsTemp4 <- CairnsTemp2 %>% 
   mutate(heatwave_years = case_when( 
     YEAR == "2016" ~ "heatwave_yr", 
