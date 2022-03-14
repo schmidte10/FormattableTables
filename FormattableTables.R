@@ -101,6 +101,13 @@ CairnsTemp_summary2 <- CairnsTemp2 %>%
     earliest_date = min(time), 
     latest_date = max(time), 
     days_obsrvd = length(time)) 
+
+CairnsTemp2 <- CairnsTemp2 %>% 
+  mutate(time = as_date(time)) %>% #reformat date column as a 'date' variable 
+  separate(time, 
+           sep="-", 
+           remove=FALSE, 
+           into = c("YEAR", "MONTH", "DAY")) 
 #save dataframe
 save(CairnsTemp2, file="CairnsTemp2.Rda")
 print(as_tibble(CairnsTemp_summary2), n=length(CairnsTemp_summary$site)) 
@@ -110,14 +117,6 @@ head(CairnsTemp_summary); head(CairnsTemp_summary2)
 #--- formatting data for table ---# 
 #load dataframe
 load("CairnsTemp2.Rda")  
-
-CairnsTemp2 <- CairnsTemp2 %>% 
-  mutate(time = as_date(time)) %>% #reformat date column as a 'date' variable 
-  separate(time, 
-           sep="-", 
-           remove=FALSE, 
-           into = c("YEAR", "MONTH", "DAY")) 
-
 #extracting summer months
 summer <- CairnsTemp2 %>%  
   mutate(YEAR = as.numeric(YEAR), 
@@ -132,7 +131,8 @@ mst <- summer %>%
   summarise(temp_mean = mean(cal_val), 
              max_mean = mean(cal_max), 
              depth_mean = mean(depth), 
-             range_mean = mean(cal_max - cal_min)) 
+             range_mean = mean(cal_max - cal_min)) %>% 
+  ungroup()
 
 #--- getting data into table format in R ---# 
 mst_temp <- mst %>% 
@@ -175,9 +175,28 @@ CairnsRegion_Table <- formattable(mst_all2,
 CairnsRegion_Table = as.datatable(formattable(CairnsRegion_Table)) %>% 
   formatStyle(colnames(mst_all2), `text-align` = 'right')
 
-#--- Density plots ---# 
-ggplot(CairnsTemp2, aes(cal_val)) + 
-  geom_density(aes(fill= "blue"), 
-               size = 1, 
-               alpha = 0.5)+ 
-  theme_classic()
+#--- splitting data ---# 
+names(CairnsTemp2)
+CairnsTemp4 <- CairnsTemp2 %>% 
+  mutate(heatwave_years = case_when( 
+    YEAR == "2016" ~ "heatwave_yr", 
+    YEAR == "2017" ~ "heatwave_yr", 
+    YEAR == "2020" ~ "heatwave_yr",
+    TRUE ~ "ambient_yr"))
+
+agg_data <- CairnsTemp4 %>% 
+  group_by(heatwave_years)%>% 
+  na.omit() %>%
+  summarise(temp_mean = mean(cal_val), 
+            max_mean = mean(cal_max), 
+            range_mean = mean(cal_max - cal_min)) %>% 
+  ungroup() 
+
+agg_data[nrow(agg_data)+1,] <- list("Difference",
+                                    agg_data$temp_mean[2]-agg_data$temp_mean[1], 
+                                 agg_data$max_mean[2]- agg_data$max_mean[1], 
+                                 agg_data$range_mean[2] - agg_data$range_mean[1])
+agg_data[3,]
+  
+  
+  
