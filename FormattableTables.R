@@ -7,6 +7,7 @@ library(lubridate)
 library(reshape2)
 library(formattable)
 library(DT)
+library(ggplot2)
 #--- API Key should be stored, BUT NOT pushed to GitHUB ---#
 #usethis::edit_r_environ()
 my_api_key <- Sys.getenv("AIMS_DATAPLATFORM_API_KEY") 
@@ -173,3 +174,10 @@ CairnsRegion_Table <- formattable(mst_all2,
 
 CairnsRegion_Table = as.datatable(formattable(CairnsRegion_Table)) %>% 
   formatStyle(colnames(mst_all2), `text-align` = 'right')
+
+#--- Density plots ---# 
+ggplot(CairnsTemp2, aes(cal_val)) + 
+  geom_density(aes(fill= "blue"), 
+               size = 1, 
+               alpha = 0.5)+ 
+  theme_classic()
