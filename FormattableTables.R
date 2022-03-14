@@ -109,21 +109,22 @@ CairnsTemp2 <- CairnsTemp2 %>%
            remove=FALSE, 
            into = c("YEAR", "MONTH", "DAY")) 
 #save dataframe
-save(CairnsTemp2, file="CairnsTemp2.Rda")
+dir.create("files")
+save(CairnsTemp2, file="./files/CairnsTemp2.Rda")
 print(as_tibble(CairnsTemp_summary2), n=length(CairnsTemp_summary$site)) 
 head(CairnsTemp_summary); head(CairnsTemp_summary2)
 # Now all data is included and we can get on too making tables
 
 #--- formatting data for table ---# 
 #load dataframe
-load("CairnsTemp2.Rda")  
+load("./files/CairnsTemp2.Rda")  
 #extracting summer months
 summer <- CairnsTemp2 %>%  
   mutate(YEAR = as.numeric(YEAR), 
          MONTH = as.numeric(MONTH), 
          DAY = as.numeric(DAY)) %>%
   filter(MONTH == c(1,2,3,12)); unique(summer$MONTH) 
-save(summer, file = "summer.Rda")
+save(summer, file = "./files/summer.Rda")
 #--- gather yearly means ---#
 mst <- summer %>% 
   group_by(site, YEAR)%>% 
@@ -153,11 +154,11 @@ mst_all <- full_join(mst_temp,mst_max, by="site") %>%
   full_join(mst_range, by ="site") %>% 
   full_join(mst_depth[c(1,7)], by = "site") %>% 
   mutate_if(is.numeric, round, digits = 2); names(mst_all) 
-save(mst_all, file="mst_all.Rda")
+save(mst_all, file="./files/mst_all.Rda")
 
 #--- put table into formattable ---# 
 # load data
-load("mst_all.RDA")
+load("./files/mst_all.RDA")
 mst_all2 <- mst_all
 mst_all2[is.na(mst_all2)] = '' 
 
@@ -198,7 +199,7 @@ agg_data[nrow(agg_data)+1,] <- list("Difference",
 agg_data  
  
 #something seems off with the data 
-load("summer.Rda")
+load("./files/summer.Rda")
 CairnsTemp5 <- summer %>% 
   mutate(heatwave_years = case_when( 
     YEAR == "2016" ~ "heatwave_yr", 
@@ -243,7 +244,7 @@ my_temperature_plot <- CairnsTemp4 %>%
   guides(shape = guide_legend(override.aes = list(size = 0.2))); my_temperature_plot
 
 ###saving plot####
-ggsave(filename = "my_temperature_plot.pdf", 
+ggsave(filename = "./files/my_temperature_plot.pdf", 
        width = 8, 
        height = 6, 
        device = 'pdf', 
@@ -252,7 +253,7 @@ dev.off()
 
 #OR 
 
-pdf(file = "my_temperature_plot2.pdf", 
+pdf(file = "./files/my_temperature_plot2.pdf", 
     width = 8, 
     height = 6)
 my_temperature_plot 
