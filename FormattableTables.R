@@ -6,6 +6,7 @@ library(tidyverse)
 library(lubridate)
 library(reshape2)
 library(formattable)
+library(DT)
 #--- API Key should be stored, BUT NOT pushed to GitHUB ---#
 #usethis::edit_r_environ()
 my_api_key <- Sys.getenv("AIMS_DATAPLATFORM_API_KEY") 
@@ -156,8 +157,10 @@ save(mst_all, file="mst_all.Rda")
 #--- put table into formattable ---# 
 # load data
 load("mst_all.RDA")
-mst_all[is.na(mst_all)] = ''
-formattable(mst_all, 
+mst_all2 <- mst_all
+mst_all2[is.na(mst_all2)] = '' 
+
+CairnsRegion_Table <- formattable(mst_all2, 
             align = c("l","r","r","r","r","r","r","r","r","r","r","r","r"
                       ,"r","r","r","r","r","r","r","r","r","r","r","r","r"),
             list(site = formatter( 
@@ -167,3 +170,6 @@ formattable(mst_all,
               area(col = `Max_2015`:`Max_2020`) ~ color_tile("yellow","red"), 
               area(col = `Range_2015`:`Range_2020`) ~ color_tile("palegreen","green3"), 
               Depth_2020 = color_bar("pink", 'proportion', 0.2))) 
+
+CairnsRegion_Table = as.datatable(formattable(CairnsRegion_Table)) %>% 
+  formatStyle(colnames(mst_all2), `text-align` = 'right')
