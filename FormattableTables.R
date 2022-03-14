@@ -131,7 +131,8 @@ mst <- summer %>%
   summarise(temp_mean = mean(cal_val), 
              max_mean = mean(cal_max), 
              depth_mean = mean(depth), 
-             range_mean = mean(cal_max - cal_min)) 
+             range_mean = mean(cal_max - cal_min)) %>% 
+  ungroup()
 
 #--- getting data into table format in R ---# 
 mst_temp <- mst %>% 
@@ -175,5 +176,26 @@ CairnsRegion_Table = as.datatable(formattable(CairnsRegion_Table)) %>%
   formatStyle(colnames(mst_all2), `text-align` = 'right')
 
 #--- splitting data ---# 
-CairnsT
+CairnsTemp4 <- CairnsTemp2 %>% 
+  mutate(heatwave_years = case_when( 
+    YEAR == "2016" ~ "heatwave_yr", 
+    YEAR == "2017" ~ "heatwave_yr", 
+    YEAR == "2020" ~ "heatwave_yr",
+    TRUE ~ "ambient_yr"))
 
+agg_data <- CairnsTemp4 %>% 
+  group_by(heatwave_years)%>% 
+  na.omit() %>%
+  summarise(temp_mean = mean(cal_val), 
+            max_mean = mean(cal_max), 
+            range_mean = mean(cal_max - cal_min)) %>% 
+  ungroup() 
+
+agg_data[nrow(agg_data)+1,] <- list("Difference",
+                                    agg_data$temp_mean[2]-agg_data$temp_mean[1], 
+                                 agg_data$max_mean[2]- agg_data$max_mean[1], 
+                                 agg_data$range_mean[2] - agg_data$range_mean[1])
+agg_data[3,]
+  
+  
+  
