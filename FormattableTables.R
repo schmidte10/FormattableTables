@@ -123,7 +123,7 @@ summer <- CairnsTemp2 %>%
          MONTH = as.numeric(MONTH), 
          DAY = as.numeric(DAY)) %>%
   filter(MONTH == c(1,2,3,12)); unique(summer$MONTH) 
-
+save(summer, file = "summer.Rda")
 #--- gather yearly means ---#
 mst <- summer %>% 
   group_by(site, YEAR)%>% 
@@ -175,7 +175,7 @@ CairnsRegion_Table <- formattable(mst_all2,
 CairnsRegion_Table = as.datatable(formattable(CairnsRegion_Table)) %>% 
   formatStyle(colnames(mst_all2), `text-align` = 'right')
 
-#--- splitting data ---# 
+#--- descriptive statistics ---# 
 CairnsTemp4 <- CairnsTemp2 %>% 
   mutate(heatwave_years = case_when( 
     YEAR == "2016" ~ "heatwave_yr", 
@@ -193,9 +193,68 @@ agg_data <- CairnsTemp4 %>%
 
 agg_data[nrow(agg_data)+1,] <- list("Difference",
                                     agg_data$temp_mean[2]-agg_data$temp_mean[1], 
-                                 agg_data$max_mean[2]- agg_data$max_mean[1], 
-                                 agg_data$range_mean[2] - agg_data$range_mean[1])
-agg_data[3,]
-  
-  
-  
+                                    agg_data$max_mean[2]- agg_data$max_mean[1], 
+                                    agg_data$range_mean[2] - agg_data$range_mean[1])
+agg_data  
+ 
+#something seems off with the data 
+load("summer.Rda")
+CairnsTemp5 <- summer %>% 
+  mutate(heatwave_years = case_when( 
+    YEAR == "2016" ~ "heatwave_yr", 
+    YEAR == "2017" ~ "heatwave_yr", 
+    YEAR == "2020" ~ "heatwave_yr",
+    TRUE ~ "ambient_yr"))
+
+agg_data <- CairnsTemp5 %>% 
+  group_by(heatwave_years)%>% 
+  na.omit() %>%
+  summarise(temp_mean = mean(cal_val), 
+            max_mean = max(cal_max), 
+            range_mean = mean(cal_max - cal_min)) %>% 
+  ungroup() 
+
+agg_data[nrow(agg_data)+1,] <- list("Difference",
+                                    agg_data$temp_mean[2]-agg_data$temp_mean[1], 
+                                    agg_data$max_mean[2]- agg_data$max_mean[1], 
+                                    agg_data$range_mean[2] - agg_data$range_mean[1])
+agg_data 
+
+#--- density plots ---#
+my_temperature_plot <- CairnsTemp4 %>% 
+  na.omit() %>% 
+  ggplot(aes(cal_val))+
+  geom_density(aes(fill = heatwave_years), 
+               size = 1, 
+               position = "identity", 
+               alpha = 0.8, 
+               adjust = 1.5) + 
+  scale_fill_manual(labels = c("Ambient", "Heatwave"), values = c("skyblue", "red")) + 
+  scale_x_continuous(breaks = seq(21,34,2), 
+                     limits = c(21,32))+
+  theme_light()+ 
+  xlab("Temperature (\u00B0C)") + 
+  ylab("Density")+ 
+  ylim(0,0.25)+
+  ggtitle("My temperature plot :)")+ 
+  labs(fill = "Temperature years") + 
+  theme(legend.direction = "horizontal",
+        legend.position = c(.25,.95)) + 
+  guides(shape = guide_legend(override.aes = list(size = 0.2))); my_temperature_plot
+
+###saving plot####
+ggsave(filename = "my_temperature_plot.pdf", 
+       width = 8, 
+       height = 6, 
+       device = 'pdf', 
+       dpi = 500)
+dev.off()
+
+#OR 
+
+pdf(file = "my_temperature_plot2.pdf", 
+    width = 8, 
+    height = 6)
+my_temperature_plot 
+dev.off()
+
