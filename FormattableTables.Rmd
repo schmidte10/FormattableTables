@@ -4,7 +4,44 @@ author: "Elliott Schmidt"
 date: "11/03/2022"
 output: html_document
 ---
+# Making tables with ***FormatTable*** 
 
-```{r setup} 
+Download necessary packages 
 
+```{r packages_needed, message=FALSE, warning=FALSE} 
+library(usethis) 
+library(dataaimsr) 
+library(purrr)
+library(tidyverse)
+library(lubridate)
+library(reshape2)
+library(formattable)
+library(DT)
+library(ggplot2)
+```
+Before beginning you need to make sure that your **AIMS API Key** is hidden in your a **.Renviron** file. To create an .Renviron file you can use the following code. 
+
+```{r renviron_file, eval=FALSE}
+usethis::edit_r_environ()
+```
+Within your newly create .Renviron file enter your AIMS API Key as AIMS_DATAPLATFORM_API_KEY=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX 
+
+Double check that your .gitignore file contains 
+
+```{r gitignore, eval=FALSE}
+# R Environment Variables
+.Renviron
+```
+This will prevent you from accidentally pushing your AIMS API Key onto GitHub. Your AIMS API Key is meant just for you, not put it on GitHub 
+
+
+To check that your AIMS API Key is stored correctly run 
+
+```{r aims_api_key1, results="hide"}
+Sys.getenv("AIMS_DATAPLATFORM_API_KEY")
+```
+If your AIMS API Key shows up, then it is stored correctly. But we don't want to be typing it out every time. Therefore hide it in a new variable called **my_api_key**
+
+```{r aims_api_key2}
+my_api_key <- Sys.getenv("AIMS_DATAPLATFORM_API_KEY") 
 ```
