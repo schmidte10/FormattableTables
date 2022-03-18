@@ -2,9 +2,19 @@
 title: "FormattableTables"
 author: "Elliott Schmidt"
 date: "11/03/2022"
-output: html_document
+output:
+  html_document: 
+    theme: spacelab
+    toc: true
+    toc_float: true  
+    collapsed: true
+    smooth_scroll: true
+fontsize: 12pt
+mainfont: Arial
+monofont: DejaVu Sans Mono
+classoption: a4paper
 ---
-# Making tables with ***FormatTable*** 
+# Setup 
 
 Download necessary packages  
 
@@ -32,10 +42,7 @@ Double check that your .gitignore file contains
 # R Environment Variables
 .Renviron
 ```
-This will prevent you from accidentally pushing your AIMS API Key onto GitHub. Your AIMS API Key is meant just for you, not put it on GitHub 
-
-
-To check that your AIMS API Key is stored correctly run 
+This will prevent you from accidentally pushing your AIMS API Key onto GitHub. Your AIMS API Key is meant just for you, donot put it on GitHub. To check that your AIMS API Key is stored correctly run 
 
 ```{r aims_api_key1, results="hide"}
 Sys.getenv("AIMS_DATAPLATFORM_API_KEY")
