@@ -22,8 +22,7 @@ stcrispin <- aims_data("temp_loggers",
                          "series" = "STCRISPFL1",
                          "from_date" = "2014-03-16T00:00:00",
                          "thru_date" = "2015-01-07T00:00:00"
-))
-head(stcrispin)
+)) ; head(stcrispin)
 
 #--- selecting a region ---#
 CairnsRegion <- aims_data("temp_loggers", 
@@ -72,48 +71,26 @@ aims_data_per_series <- function(series_number, my_api_key, ...) {
 CairnsTemp <- purrr::map_df(reef_list, aims_data_per_series,
                          my_api_key = my_api_key,
                          from_date = "2015-01-01",
-                         thru_date = "2020-12-31")
+                         thru_date = "2020-12-31", 
+                         size = 3000)
 
 CairnsTemp_summary <- CairnsTemp %>% 
   group_by(site) %>% 
   summarise( 
     earliest_date = min(time), 
     latest_date = max(time), 
-    days_obsrvd = length(time)); 
+    days_obsrvd = length(time))
 print(as_tibble(CairnsTemp_summary), n=length(CairnsTemp_summary$site)) 
 
-#--- Importing data from multiple sites (for loop) ---#
-from_date_list = c("2015-01-01","2016-01-01","2017-01-01","2018-01-01","2019-01-01","2020-01-01") 
-thru_date_list = c("2015-12-31","2016-12-31","2017-12-31","2018-12-31","2019-12-31","2020-12-31")
-
-CairnsTemp_list <- list()
-for (i in 1:6) { 
- CairnsTemp_list[[i]] <-  purrr::map_df(reef_list, aims_data_per_series,
-                my_api_key = my_api_key,
-                from_date = from_date_list[[i]],
-                thru_date = thru_date_list[[i]])
-  
-}
-head(CairnsTemp_list[[1]])
-CairnsTemp2 <- bind_rows(CairnsTemp_list)
-CairnsTemp_summary2 <- CairnsTemp2 %>% 
-  group_by(site) %>% 
-  summarise( 
-    earliest_date = min(time), 
-    latest_date = max(time), 
-    days_obsrvd = length(time)) 
-
-CairnsTemp2 <- CairnsTemp2 %>% 
+CairnsTemp2 <- CairnsTemp %>% 
   mutate(time = as_date(time)) %>% #reformat date column as a 'date' variable 
   separate(time, 
            sep="-", 
            remove=FALSE, 
            into = c("YEAR", "MONTH", "DAY")) 
 #save dataframe
-dir.create("files")
+#dir.create("files")
 save(CairnsTemp2, file="./files/CairnsTemp2.Rda")
-print(as_tibble(CairnsTemp_summary2), n=length(CairnsTemp_summary$site)) 
-head(CairnsTemp_summary); head(CairnsTemp_summary2)
 # Now all data is included and we can get on too making tables
 
 #--- formatting data for table ---# 
