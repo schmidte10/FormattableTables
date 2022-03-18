@@ -98,7 +98,11 @@ CairnsTemp2 <- CairnsTemp %>%
   separate(time, 
            sep="-", 
            remove=FALSE, 
-           into = c("YEAR", "MONTH", "DAY")) 
+           into = c("YEAR", "MONTH", "DAY"))%>%  
+  mutate(YEAR = as.numeric(YEAR), 
+         MONTH = as.numeric(MONTH), 
+         DAY = as.numeric(DAY)) 
+
 #save dataframe
 #dir.create("files")
 save(CairnsTemp2, file="./files/CairnsTemp2.Rda")
@@ -106,12 +110,9 @@ save(CairnsTemp2, file="./files/CairnsTemp2.Rda")
 
 #--- formatting data for table ---# 
 #load dataframe
-load("./files/CairnsTemp2.Rda")  
+#load("./files/CairnsTemp2.Rda")  
 #extracting summer months
-summer <- CairnsTemp2 %>%  
-  mutate(YEAR = as.numeric(YEAR), 
-         MONTH = as.numeric(MONTH), 
-         DAY = as.numeric(DAY)) %>%
+summer <- CairnsTemp2 %>%
   filter(MONTH == c(1,2,3,12)); unique(summer$MONTH) 
 save(summer, file = "./files/summer.Rda")
 #--- gather yearly means ---#
@@ -127,16 +128,16 @@ mst <- summer %>%
 #--- getting data into table format in R ---# 
 mst_temp <- mst %>% 
   dcast(site~YEAR, value.var = "temp_mean") 
-colnames(mst_temp)[2:7] = paste0('Mean_',colnames(mst_temp)[2:7])
+colnames(mst_temp)[2:length(colnames(mst_temp))] = paste0('Mean_',colnames(mst_temp)[2:length(colnames(mst_temp))])
 mst_max <- mst %>% 
   dcast(site~YEAR, value.var = "max_mean")
-colnames(mst_max)[2:7] = paste0('Max_',colnames(mst_max)[2:7])
+colnames(mst_max)[2:length(colnames(mst_temp))] = paste0('Max_',colnames(mst_max)[2:length(colnames(mst_temp))])
 mst_depth <- mst %>% 
   dcast(site~YEAR, value.var = "depth_mean")
-colnames(mst_depth)[2:7] = paste0('Depth_',colnames(mst_depth)[2:7])
+colnames(mst_depth)[2:length(colnames(mst_temp))] = paste0('Depth_',colnames(mst_depth)[2:length(colnames(mst_temp))])
 mst_range <- mst %>% 
   dcast(site~YEAR, value.var = "range_mean") 
-colnames(mst_range)[2:7] = paste0('Range_',colnames(mst_range)[2:7])
+colnames(mst_range)[2:length(colnames(mst_temp))] = paste0('Range_',colnames(mst_range)[2:length(colnames(mst_temp))])
 
 # join all the data together
 mst_all <- full_join(mst_temp,mst_max, by="site") %>% 
@@ -187,8 +188,10 @@ agg_data[nrow(agg_data)+1,] <- list("Difference",
                                     agg_data$range_mean[2] - agg_data$range_mean[1])
 agg_data  
  
-#something seems off with the data 
-load("./files/summer.Rda")
+# But his doesn't help us with determining summer temperature 
+
+#load("./files/summer.Rda")
+
 CairnsTemp5 <- summer %>% 
   mutate(heatwave_years = case_when( 
     YEAR == "2016" ~ "heatwave_yr", 
@@ -236,6 +239,11 @@ my_temperature_plot <- CairnsTemp4 %>%
         legend.position = c(.25,.95)) + 
   guides(shape = guide_legend(override.aes = list(size = 0.2))); my_temperature_plot
 
+temp_freq <- ggplot_build(my_temperature_plot)$data[[1]] %>%
+  group_by(fill) %>% 
+  filter(density == max(density)) %>% 
+  ungroup(); temp_freq
+temp_freq[[3]]
 ###saving plot####
 ggsave(filename = "./files/my_temperature_plot.pdf", 
        width = 8, 

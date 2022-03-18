@@ -14,6 +14,12 @@ mainfont: Arial
 monofont: DejaVu Sans Mono
 classoption: a4paper
 ---
+
+_"And why should we feel anger towards the world?_
+_As if the world would notice"_
+
+_-Marcus Aurelius_
+
 # Setup 
 
 Download necessary packages  
@@ -130,7 +136,7 @@ CairnsRegion2 <- aims_data("temp_loggers",
                                          thru_date = "2020-12-31"
                           ))  ; plot(CairnsRegion2, ptype = "map") 
 ```
-##
+
 
 # Data Manipulation
 ```{r data_manipulation}
@@ -187,7 +193,10 @@ CairnsTemp2 <- CairnsTemp %>%
   separate(time, 
            sep="-", 
            remove=FALSE, 
-           into = c("YEAR", "MONTH", "DAY")) 
+           into = c("YEAR", "MONTH", "DAY")) %>%  
+  mutate(YEAR = as.numeric(YEAR), 
+         MONTH = as.numeric(MONTH), 
+         DAY = as.numeric(DAY))
 
 # quick check to see if it worked 
 
@@ -201,4 +210,195 @@ Saving dataframes is easy. We will save the dataframe in a new directory called 
 ```{r saving_data_frame}
 #dir.create("files")
 save(CairnsTemp2, file="./files/CairnsTemp2.Rda")
+```
+
+# Formating dataframe for FormatTable 
+
+Below is how you would upload your saved dataframe
+```{r uploading_saved_dataframe}
+#load dataframe
+load("./files/CairnsTemp2.Rda")  
+``` 
+
+```{r formating_data_formattable, message=FALSE}
+#--- formatting data for table ---# 
+#extracting summer months
+summer <- CairnsTemp2 %>%
+  filter(MONTH == c(1,2,3,12)); unique(summer$MONTH) 
+
+#If you want to save, uncomment lines below
+#save(summer, file = "./files/summer.Rda") 
+
+#--- gather yearly means ---#
+mst <- summer %>% 
+  group_by(site, YEAR)%>% 
+  na.omit() %>%
+  summarise(temp_mean = mean(cal_val), 
+             max_mean = mean(cal_max), 
+             depth_mean = mean(depth), 
+             range_mean = mean(cal_max - cal_min)) %>% 
+  ungroup() 
+head(mst)
+```
+
+The function **dcast** does a lot of heavy lifting of us, so we must be kind to it. **dcast** will reformat the data to by listing 'sites' within rows and 'Year' as the columns. Lets run the code and see what it looks like.   
+
+We will collect data for temperature **mean**, **max**, **range**, and logger **depth** separately and then bring all the data back together. 
+
+```{r formating_data_formattable2}
+#--- getting data into table format in R ---# 
+mst_temp <- mst %>% 
+  dcast(site~YEAR, value.var = "temp_mean") 
+colnames(mst_temp)[2:length(colnames(mst_temp))] = paste0('Mean_',colnames(mst_temp)[2:length(colnames(mst_temp))])
+mst_max <- mst %>% 
+  dcast(site~YEAR, value.var = "max_mean")
+colnames(mst_max)[2:length(colnames(mst_temp))] = paste0('Max_',colnames(mst_max)[2:length(colnames(mst_temp))])
+mst_depth <- mst %>% 
+  dcast(site~YEAR, value.var = "depth_mean")
+colnames(mst_depth)[2:length(colnames(mst_temp))] = paste0('Depth_',colnames(mst_depth)[2:length(colnames(mst_temp))])
+mst_range <- mst %>% 
+  dcast(site~YEAR, value.var = "range_mean") 
+colnames(mst_range)[2:length(colnames(mst_temp))] = paste0('Range_',colnames(mst_range)[2:length(colnames(mst_temp))])
+head(mst_temp) 
+
+# join all the data together
+mst_all <- full_join(mst_temp,mst_max, by="site") %>% 
+  full_join(mst_range, by ="site") %>% 
+  full_join(mst_depth[c(1,7)], by = "site") %>% 
+  mutate_if(is.numeric, round, digits = 2); names(mst_all) 
+
+#save data
+#save(mst_all, file="./files/mst_all.Rda")
+```
+
+# FormatTable 
+
+```{r FormatTable}
+#--- put table into formattable ---# 
+# load data
+#load("./files/mst_all.RDA")
+mst_all2 <- mst_all
+mst_all2[is.na(mst_all2)] = '' 
+
+CairnsRegion_Table <- formattable(mst_all2, 
+            align = c("l","r","r","r","r","r","r","r","r","r","r","r","r"
+                      ,"r","r","r","r","r","r","r","r","r","r","r","r","r"),
+            list(site = formatter( 
+              "span",
+              style = ~style(color = "grey", font.weigh = "bold")), 
+              area(col = `Mean_2015`:`Mean_2020`) ~ color_tile("white","red"), 
+              area(col = `Max_2015`:`Max_2020`) ~ color_tile("yellow","red"), 
+              area(col = `Range_2015`:`Range_2020`) ~ color_tile("palegreen","green3"),
+              Depth_2020 = color_bar("pink", 'proportion', 0.2))) 
+
+CairnsRegion_Table = as.datatable(formattable(CairnsRegion_Table)) %>% 
+  formatStyle(colnames(mst_all2), `text-align` = 'right')
+```
+
+Save table using the 'export' button in RStudio 
+
+# Density Plots 
+
+## Descriptive statistics 
+```{r descriptive statistics}
+#--- descriptive statistics ---# 
+CairnsTemp4 <- CairnsTemp2 %>% 
+  mutate(heatwave_years = case_when( 
+    YEAR == "2016" ~ "heatwave_yr", 
+    YEAR == "2017" ~ "heatwave_yr", 
+    YEAR == "2020" ~ "heatwave_yr",
+    TRUE ~ "ambient_yr"))
+
+agg_data <- CairnsTemp4 %>% 
+  group_by(heatwave_years)%>% 
+  na.omit() %>%
+  summarise(temp_mean = mean(cal_val), 
+            max_mean = mean(cal_max), 
+            range_mean = mean(cal_max - cal_min)) %>% 
+  ungroup() 
+
+agg_data[nrow(agg_data)+1,] <- list("Difference",
+                                    agg_data$temp_mean[2]-agg_data$temp_mean[1], 
+                                    agg_data$max_mean[2]- agg_data$max_mean[1], 
+                                    agg_data$range_mean[2] - agg_data$range_mean[1])
+agg_data  
+
+# But his doesn't help us with determining summer temperature 
+
+#load("./files/summer.Rda")
+
+CairnsTemp5 <- summer %>% 
+  mutate(heatwave_years = case_when( 
+    YEAR == "2016" ~ "heatwave_yr", 
+    YEAR == "2017" ~ "heatwave_yr", 
+    YEAR == "2020" ~ "heatwave_yr",
+    TRUE ~ "ambient_yr"))
+
+agg_data <- CairnsTemp5 %>% 
+  group_by(heatwave_years)%>% 
+  na.omit() %>%
+  summarise(temp_mean = mean(cal_val), 
+            max_mean = max(cal_max), 
+            range_mean = mean(cal_max - cal_min)) %>% 
+  ungroup() 
+
+agg_data[nrow(agg_data)+1,] <- list("Difference",
+                                    agg_data$temp_mean[2]-agg_data$temp_mean[1], 
+                                    agg_data$max_mean[2]- agg_data$max_mean[1], 
+                                    agg_data$range_mean[2] - agg_data$range_mean[1])
+agg_data 
+```
+
+## Density plot 
+
+**Note: Make sure your colors are friendly to the colorblind!** 
+
+```{r plotting} 
+my_temperature_plot <- CairnsTemp4 %>% 
+  na.omit() %>% 
+  ggplot(aes(cal_val))+
+  geom_density(aes(fill = heatwave_years), 
+               size = 1, 
+               position = "identity", 
+               alpha = 0.8, 
+               adjust = 1.5) + 
+  scale_fill_manual(labels = c("Ambient", "Heatwave"), 
+                    values = c("#56B4E9", "#D55E00")) + 
+  scale_x_continuous(breaks = seq(21,34,2), 
+                     limits = c(21,32))+
+  theme_light()+ 
+  xlab("Temperature (\u00B0C)") + 
+  ylab("Density")+ 
+  ylim(0,0.25)+
+  ggtitle("My temperature plot :)")+ 
+  labs(fill = "Temperature years") + 
+  theme(legend.direction = "horizontal",
+        legend.position = c(.25,.95)) + 
+  guides(shape = guide_legend(override.aes = list(size = 0.2))); my_temperature_plot
+
+temp_freq <- ggplot_build(my_temperature_plot)$data[[1]] %>%
+  group_by(fill) %>% 
+  filter(density == max(density)) %>% 
+  ungroup(); temp_freq
+temp_freq[[3]]
+``` 
+
+Save the plot. There are one or two way of doing this 
+
+```{r saving plot, eval=FALSE}
+###saving plot####
+ggsave(filename = "./files/my_temperature_plot.pdf", 
+       width = 8, 
+       height = 6, 
+       device = 'pdf', 
+       dpi = 500)
+dev.off()
+
+#OR 
+
+pdf(file = "./files/my_temperature_plot2.pdf", 
+    width = 8, 
+    height = 6)
+my_temperature_plot 
+dev.off()
 ```
