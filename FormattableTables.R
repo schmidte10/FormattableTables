@@ -72,7 +72,7 @@ CairnsTemp <- purrr::map_df(reef_list, aims_data_per_series,
                          my_api_key = my_api_key,
                          from_date = "2015-01-01",
                          thru_date = "2020-12-31", 
-                         size = 3000)
+                         size = 3000) 
 
 CairnsTemp_summary <- CairnsTemp %>% 
   group_by(site) %>% 
