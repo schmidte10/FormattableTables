@@ -6,7 +6,7 @@ output: html_document
 ---
 # Making tables with ***FormatTable*** 
 
-Download necessary packages 
+Download necessary packages  
 
 ```{r packages_needed, message=FALSE, warning=FALSE} 
 library(usethis) 
