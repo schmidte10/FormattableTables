@@ -15,14 +15,20 @@ my_api_key <- Sys.getenv("AIMS_DATAPLATFORM_API_KEY")
 #--- Importing data from AIMS temperature loggers - single site ---#
 dataaimsr::aims_expose_attributes("temp_loggers")
 
-stcrispin <- aims_data("temp_loggers", 
+#summary for data
+summary_series_data <- aims_data("temp_loggers", api_key = my_api_key,
+          summary = "summary-by-series")
+head(summary_series_data)
+
+# Agincourt Reef Number 3
+agincourt3 <- aims_data("temp_loggers", 
                        api_key = my_api_key, 
                        summary = "daily",
                        filters = list(
-                         "series" = "STCRISPFL1",
+                         "series" = "AG3FL1",
                          "from_date" = "2014-03-16T00:00:00",
                          "thru_date" = "2015-01-07T00:00:00"
-)) ; head(stcrispin)
+)) ; head(agincourt3)
 
 #--- selecting a region ---#
 CairnsRegion <- aims_data("temp_loggers", 
