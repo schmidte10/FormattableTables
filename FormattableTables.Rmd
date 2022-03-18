@@ -52,3 +52,8 @@ If your AIMS API Key shows up, then it is stored correctly. But we don't want to
 ```{r aims_api_key2}
 my_api_key <- Sys.getenv("AIMS_DATAPLATFORM_API_KEY") 
 ```
+
+# Importing fata from AIMS 
+```{r importing_data}
+
+```
