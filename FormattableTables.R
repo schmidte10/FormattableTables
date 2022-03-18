@@ -20,15 +20,15 @@ summary_series_data <- aims_data("temp_loggers", api_key = my_api_key,
           summary = "summary-by-series")
 head(summary_series_data)
 
-# Agincourt Reef Number 3
-agincourt3 <- aims_data("temp_loggers", 
+# Davies
+davies <- aims_data("temp_loggers", 
                        api_key = my_api_key, 
                        summary = "daily",
                        filters = list(
-                         "series" = "AG3FL1",
-                         "from_date" = "2014-03-16T00:00:00",
-                         "thru_date" = "2015-01-07T00:00:00"
-)) ; head(agincourt3)
+                         "series" = "DAVSL1",
+                         "from_date" = "2010-03-16T00:00:00",
+                         "thru_date" = "2020-01-07T00:00:00"
+)) ; head(davies)
 
 #--- selecting a region ---#
 CairnsRegion <- aims_data("temp_loggers", 
@@ -73,6 +73,11 @@ aims_data_per_series <- function(series_number, my_api_key, ...) {
   aims_data("temp_loggers", api_key = my_api_key,  summary = "daily",
             filters = list(series_id = series_number, ...))
 }
+
+CairnsTemp <- purrr::map_df(reef_list, aims_data_per_series,
+                            my_api_key = my_api_key,
+                            from_date = "2015-01-01",
+                            thru_date = "2020-12-31")
 
 CairnsTemp <- purrr::map_df(reef_list, aims_data_per_series,
                          my_api_key = my_api_key,

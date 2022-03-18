@@ -74,7 +74,7 @@ kable(as.data.frame(head(summary_series_data)), "html") %>%
 ```
 
 
-Lets try to get a summary of daily temperatures from a Agincourt Reef Number 3 and set an interval of dates 
+Lets try to get a summary of daily temperatures from Davies Reef and set an interval of dates 
 ```{r importing_data4, message=FALSE, results='hide'}
 davies <- aims_data("temp_loggers", 
                        api_key = my_api_key, 
@@ -90,4 +90,115 @@ davies <- aims_data("temp_loggers",
 kable(head(davies), "html") %>% 
   kable_styling("striped") %>% 
   scroll_box(width = "100%")
+```
+
+# Selecting data by region 
+```{r selection_regional_data, message=FALSE}
+CairnsRegion <- aims_data("temp_loggers", 
+                       api_key = my_api_key,
+                       summary = "summary-by-series", 
+                       filters = list(max_lat = -15.000, 
+                                      min_lat = - 19.000,
+                                      max_lon = 150.500, 
+                                      min_lon = 143.500, 
+                                      from_date = "2015-01-01", 
+                                      thru_date = "2020-12-31"
+                                      )) 
+```
+## Output {.tabset} 
+
+### List 
+```{r output_list, echo=FALSE}
+unique(CairnsRegion$site)
+```
+
+### Map
+```{r output_map, echo=FALSE}
+plot(CairnsRegion, ptype = "map") 
+```
+
+### Map (corrected)
+```{r output_map2, echo=FALSE, message=FALSE}
+CairnsRegion2 <- aims_data("temp_loggers", 
+                          api_key = my_api_key,
+                          summary = "summary-by-series", 
+                          filters = list(max_lat = -15.000, 
+                                         min_lat = - 19.000,
+                                         max_lon = 147.500, 
+                                         min_lon = 145.500, 
+                                         from_date = "2015-01-01", 
+                                         thru_date = "2020-12-31"
+                          ))  ; plot(CairnsRegion2, ptype = "map") 
+```
+##
+
+# Data Manipulation
+```{r data_manipulation}
+#--- filtering data ---#
+CairnsRegion3 <- CairnsRegion2%>% 
+  filter(between (depth, 7,15)) 
+
+#--- summarising data ---#
+CairnsRegion3 %>% summarise( 
+  number_of_reefs = length(site), 
+  min_depth = min(depth), 
+  max_depth = max(depth), 
+  mean_depth = mean(depth)
+  )
+```
+
+The default for max. observations downloaded per site is set to 1000. If downloading a large amount of data set the **size** parameter to a large number 
+
+Lets start by downloading data from **2015-01-01** to **2020-12-31** for the reefs that we identified as being in Cairns Region earlier. 
+
+The list of reefs will be store in variable **reef_list**
+```{r data_manipulation2, message=FALSE, cache=TRUE}
+#--- Importing data from multiple sites ---#
+reef_list <- CairnsRegion3$series_id
+aims_data_per_series <- function(series_number, my_api_key, ...) {
+  aims_data("temp_loggers", api_key = my_api_key,  summary = "daily",
+            filters = list(series_id = series_number, ...))
+}
+
+CairnsTemp <- purrr::map_df(reef_list, aims_data_per_series,
+                         my_api_key = my_api_key,
+                         from_date = "2015-01-01",
+                         thru_date = "2020-12-31", 
+                         size = 3000) 
+```
+
+Lets look at a quick summary of out data 
+
+```{r data_manipulation3, message=FALSE} 
+CairnsTemp_summary <- CairnsTemp %>% 
+  group_by(site) %>% 
+  summarise( 
+    earliest_date = min(time), 
+    latest_date = max(time), 
+    days_obsrvd = length(time))
+print(as_tibble(CairnsTemp_summary), n=length(CairnsTemp_summary$site)) 
+```
+
+Great Job! But to make our lives easier before we move on, will we separate the time column into the variables **YEAR**,**MONTH**, and **DAY**. 
+
+```{r data_manipulation4}
+CairnsTemp2 <- CairnsTemp %>% 
+  mutate(time = as_date(time)) %>% #reformat date column as a 'date' variable 
+  separate(time, 
+           sep="-", 
+           remove=FALSE, 
+           into = c("YEAR", "MONTH", "DAY")) 
+
+# quick check to see if it worked 
+
+names(CairnsTemp2)
+``` 
+
+Lets save this dataframe. Although it would be easy enough for potential collaborators to run this script image you were working with a large dataframe and/or model that was slow to work with. It will save you time by not having to download all the AIMS temperature logger data everytime you want to work on it as well.  
+
+Saving dataframes is easy. We will save the dataframe in a new directory called **'files'**. To do so, uncomment the first line of code below.  
+
+```{r saving_data_frame}
+#dir.create("files")
+save(CairnsTemp2, file="./files/CairnsTemp2.Rda")
 ```
