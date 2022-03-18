@@ -382,11 +382,14 @@ my_temperature_plot <- CairnsTemp4 %>%
 
 # what are the exact temperature with the max. frequency
 
-temp_freq <- ggplot_build(my_temperature_plot)$data[[1]] %>%
+ggplot_build(my_temperature_plot)$data[[1]] %>%
   group_by(fill) %>% 
   filter(density == max(density)) %>% 
-  ungroup(); temp_freq
-temp_freq[[3]]
+  ungroup() %>% 
+  kable("html") %>% 
+  kable_styling("striped") %>% 
+  scroll_box(width = "100%")
+
 ``` 
 
 Save the plot. There are one or two way of doing this 
