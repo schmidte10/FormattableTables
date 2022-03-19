@@ -13,7 +13,7 @@ The last two are the most important, but hopefully we can quickly review how to 
 
 If you want the files ahead of time you can download the .zip file from GitHub by clicking on the CODE button and then download ZIP in the drop down menu
 
-If you want you can try to download the files directly from GitHub into R you can try following the steps below: 
+If you want you can try to download the files directly from GitHub into you can try following the steps below: 
 
 Create a new repository at github.com. (this is your repository)
 Give it the same name as the other repository (In this case FormattableTables).
@@ -22,6 +22,7 @@ DONT initialize it with a README, .gitignore, or license.
 Clone the repository to your local machine. 
 Make sure your directory in R is already set.
 Do this using the Git shell in R
+
 Git tab --> more (gear with drop down arrow) --> shell
 
 **git clone https://github.com/schmidte10/FormattableTables.git**
