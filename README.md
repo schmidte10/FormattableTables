@@ -24,7 +24,7 @@ Make sure your directory in R is already set.
 Do this using the Git shell in R
 Git tab --> more (gear with drop down arrow) --> shell
 
-$git clone https://github.com/schmidte10/FormattableTables.git
+**git clone https://github.com/schmidte10/FormattableTables.git**
 
 Rename the local repository's current 'origin' to 'upstream'.
 
