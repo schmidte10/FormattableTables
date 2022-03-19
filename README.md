@@ -27,20 +27,26 @@ Git tab --> more (gear with drop down arrow) --> shell
 git clone https://github.com/schmidte10/FormattableTables.git
 
 Rename the local repository's current 'origin' to 'upstream'.
+
 git remote rename origin upstream
 
 Give the local repository an 'origin' that points to your repository.
+
 git remote add origin https://github.com/YOUR-ACCOUNT/FormattableTables.git
 
 Push the local repository to your repository on github.
+
 git push origin master
 
 Now 'origin' points to your repository & 'upstream' points to my original repository.
 
 Create a new branch for your changes with 
+
 git checkout -b my-feature-branch.
 
 You can git commit as usual to your repository.
 Use 
+
 git pull upstream master 
+
 to pull changes from the original repository to your master branch.
