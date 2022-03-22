@@ -213,6 +213,21 @@ agg_data[nrow(agg_data)+1,] <- list("Difference",
                                     agg_data$range_mean[2] - agg_data$range_mean[1])
 agg_data 
 
+  
+CairnsTemp4 %>% 
+  filter(heatwave_years == "ambient_yr") %>% 
+    mutate_if(is.numeric, round, digits = 2) %>%
+    {.$cal_val} %>% 
+    table() %>% 
+    which.max() %>% 
+    names()
+CairnsTemp4 %>% 
+  filter(heatwave_years == "heatwave_yr") %>% 
+  mutate_if(is.numeric, round, digits = 2) %>%
+  {.$cal_val} %>% 
+  table() %>% 
+  which.max() %>% 
+  names()
 #--- density plots ---#
 
 #Note: Make sure your colors are friendly to the colorblind! 
@@ -244,6 +259,23 @@ temp_freq <- ggplot_build(my_temperature_plot)$data[[1]] %>%
   filter(density == max(density)) %>% 
   ungroup(); temp_freq
 temp_freq[[3]]
+
+# or from dataframe 
+
+CairnsTemp4 %>% 
+  filter(heatwave_years == "ambient_yr") %>% 
+  mutate_if(is.numeric, round, digits = 2) %>%
+  {.$cal_val} %>% 
+  table() %>% 
+  which.max() %>% 
+  names()
+CairnsTemp4 %>% 
+  filter(heatwave_years == "heatwave_yr") %>% 
+  mutate_if(is.numeric, round, digits = 2) %>%
+  {.$cal_val} %>% 
+  table() %>% 
+  which.max() %>% 
+  names()
 ###saving plot####
 ggsave(filename = "./files/my_temperature_plot.pdf", 
        width = 8, 
