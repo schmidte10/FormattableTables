@@ -276,6 +276,7 @@ CairnsTemp4 %>%
   table() %>% 
   which.max() %>% 
   names()
+# Why are the numbers from the plot and dataframe different?
 ###saving plot####
 ggsave(filename = "./files/my_temperature_plot.pdf", 
        width = 8, 
