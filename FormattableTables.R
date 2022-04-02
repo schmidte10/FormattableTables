@@ -257,25 +257,26 @@ my_temperature_plot <- CairnsTemp4 %>%
 temp_freq <- ggplot_build(my_temperature_plot)$data[[1]] %>%
   group_by(fill) %>% 
   filter(density == max(density)) %>% 
-  ungroup(); temp_freq
+  ungroup()
 temp_freq[[3]]
 
 # or from dataframe 
 
-CairnsTemp4 %>% 
+ambient_temp_summer <- CairnsTemp4 %>% 
   filter(heatwave_years == "ambient_yr") %>% 
   mutate_if(is.numeric, round, digits = 2) %>%
   {.$cal_val} %>% 
   table() %>% 
   which.max() %>% 
-  names()
-CairnsTemp4 %>% 
+  names() 
+heatwave_temp_summer <- CairnsTemp4 %>% 
   filter(heatwave_years == "heatwave_yr") %>% 
   mutate_if(is.numeric, round, digits = 2) %>%
   {.$cal_val} %>% 
   table() %>% 
   which.max() %>% 
   names()
+ambient_temp_summer; heatwave_temp_summer
 # Why are the numbers from the plot and dataframe different?
 ###saving plot####
 ggsave(filename = "./files/my_temperature_plot.pdf", 

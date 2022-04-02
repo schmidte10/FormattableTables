@@ -1802,7 +1802,25 @@ pdf(file = &quot;./files/my_temperature_plot2.pdf&quot;,
     width = 8, 
     height = 6)
 my_temperature_plot 
-dev.off()</code></pre>
+dev.off() </code></pre>
+<p>You can also get the same information from the dataframe</p>
+<pre class="r"><code>ambient_temp_summer &lt;- CairnsTemp4 %&gt;% 
+  filter(heatwave_years == &quot;ambient_yr&quot;) %&gt;% 
+  mutate_if(is.numeric, round, digits = 2) %&gt;%
+  {.$cal_val} %&gt;% 
+  table() %&gt;% 
+  which.max() %&gt;% 
+  names() 
+heatwave_temp_summer &lt;- CairnsTemp4 %&gt;% 
+  filter(heatwave_years == &quot;heatwave_yr&quot;) %&gt;% 
+  mutate_if(is.numeric, round, digits = 2) %&gt;%
+  {.$cal_val} %&gt;% 
+  table() %&gt;% 
+  which.max() %&gt;% 
+  names()</code></pre>
+<pre><code>##   ambient_temp_summer heatwave_temp_summer
+## 1               28.32                29.32</code></pre>
+<p>Why are the numbers from the plot and dataframe different?</p>
 </div>
 </div>
 

@@ -409,5 +409,30 @@ pdf(file = "./files/my_temperature_plot2.pdf",
     width = 8, 
     height = 6)
 my_temperature_plot 
-dev.off()
+dev.off() 
 ```
+
+You can also get the same information from the dataframe 
+
+```{r data extraction, eval=TRUE}
+ambient_temp_summer <- CairnsTemp4 %>% 
+  filter(heatwave_years == "ambient_yr") %>% 
+  mutate_if(is.numeric, round, digits = 2) %>%
+  {.$cal_val} %>% 
+  table() %>% 
+  which.max() %>% 
+  names() 
+heatwave_temp_summer <- CairnsTemp4 %>% 
+  filter(heatwave_years == "heatwave_yr") %>% 
+  mutate_if(is.numeric, round, digits = 2) %>%
+  {.$cal_val} %>% 
+  table() %>% 
+  which.max() %>% 
+  names()
+``` 
+```{r data exatraction2, echo = FALSE}
+df <- data.frame(ambient_temp_summer = ambient_temp_summer, 
+                 heatwave_temp_summer = heatwave_temp_summer); df
+```
+
+Why are the numbers from the plot and dataframe different?
