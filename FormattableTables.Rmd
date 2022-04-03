@@ -145,6 +145,8 @@ CairnsRegion3 %>% summarise(
   max_depth = max(depth), 
   mean_depth = mean(depth)
   )
+
+unique(CairnsRegion3$site)
 ```
 
 The default for max. observations downloaded per site is set to 1000. If downloading a large amount of data set the **size** parameter to a large number 
@@ -264,7 +266,7 @@ mst_all <- full_join(mst_temp,mst_max, by="site") %>%
   full_join(mst_range, by ="site") %>% 
   full_join(mst_depth[c(1,7)], by = "site") %>% 
   mutate_if(is.numeric, round, digits = 2); names(mst_all) 
-
+#head(mst_all)
 #save data
 #save(mst_all, file="./files/mst_all.Rda")
 ```
@@ -291,6 +293,7 @@ CairnsRegion_Table <- formattable(mst_all2,
 
 CairnsRegion_Table = as.datatable(formattable(CairnsRegion_Table)) %>% 
   formatStyle(colnames(mst_all2), `text-align` = 'right')
+#CairnsRegion_Table
 ```
 
 Save table using the 'export' button in RStudio 
