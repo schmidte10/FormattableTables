@@ -268,9 +268,6 @@ library(kableExtra)</code></pre>
 <p>Before beginning you need to make sure that your <strong>AIMS API Key</strong> is hidden in your a <strong>.Renviron</strong> file. To create an .Renviron file you can use the following code.</p>
 <pre class="r"><code>usethis::edit_r_environ()</code></pre>
 <p>Within your newly create .Renviron file enter your AIMS API Key as AIMS_DATAPLATFORM_API_KEY=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</p>
-<p>Double check that your .gitignore file contains</p>
-<pre class="r"><code># R Environment Variables
-.Renviron</code></pre>
 <p>This will prevent you from accidentally pushing your AIMS API Key onto GitHub. Your AIMS API Key is meant just for you, donot put it on GitHub. To check that your AIMS API Key is stored correctly run</p>
 <pre class="r"><code>Sys.getenv(&quot;AIMS_DATAPLATFORM_API_KEY&quot;)</code></pre>
 <p>If your AIMS API Key shows up, then it is stored correctly. But we don’t want to be typing it out every time. Therefore hide it in a new variable called <strong>my_api_key</strong></p>

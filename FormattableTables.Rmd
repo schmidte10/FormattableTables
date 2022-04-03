@@ -43,12 +43,6 @@ usethis::edit_r_environ()
 ```
 Within your newly create .Renviron file enter your AIMS API Key as AIMS_DATAPLATFORM_API_KEY=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX 
 
-Double check that your .gitignore file contains 
-
-```{r gitignore, eval=FALSE}
-# R Environment Variables
-.Renviron
-```
 This will prevent you from accidentally pushing your AIMS API Key onto GitHub. Your AIMS API Key is meant just for you, donot put it on GitHub. To check that your AIMS API Key is stored correctly run 
 
 ```{r aims_api_key1, results="hide"}
