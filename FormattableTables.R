@@ -158,7 +158,7 @@ CairnsRegion_Table <- formattable(mst_all2,
             list(site = formatter( 
               "span",
               style = ~style(color = "grey", font.weigh = "bold")), 
-              area(col = `2015`:`2020`) ~ color_tile("blue","red"), 
+              area(col = `Mean_2015`:`Mean_2020`) ~ color_tile("white","red"), 
               area(col = `Max_2015`:`Max_2020`) ~ color_tile("yellow","red"), 
               area(col = `Range_2015`:`Range_2020`) ~ color_tile("palegreen","green3"), 
               Depth_2020 = color_bar("pink", 'proportion', 0.2))) ; CairnsRegion_Table
