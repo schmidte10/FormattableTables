@@ -7,9 +7,9 @@ library(lubridate)
 library(reshape2)
 library(formattable)
 library(DT)
-library(ggplot2)
+library(ggplot2) 
 #--- API Key should be stored, BUT NOT pushed to GitHUB ---#
-#usethis::edit_r_environ()
+usethis::edit_r_environ()
 my_api_key <- Sys.getenv("AIMS_DATAPLATFORM_API_KEY") 
 
 #--- Importing data from AIMS temperature loggers - single site ---#
@@ -56,7 +56,7 @@ CairnsRegion2 <- aims_data("temp_loggers",
                           ))  ; plot(CairnsRegion2, ptype = "map") 
 
 #--- filtering data ---#
-CairnsRegion3 <- CairnsRegion2%>% 
+CairnsRegion3 <- CairnsRegion2 %>% 
   filter(between (depth, 7,15)) 
 
 #--- summarising data ---#
@@ -124,7 +124,7 @@ mst <- summer %>%
              depth_mean = mean(depth), 
              range_mean = mean(cal_max - cal_min)) %>% 
   ungroup()
-
+mst
 #--- getting data into table format in R ---# 
 mst_temp <- mst %>% 
   dcast(site~YEAR, value.var = "temp_mean") 
@@ -158,10 +158,10 @@ CairnsRegion_Table <- formattable(mst_all2,
             list(site = formatter( 
               "span",
               style = ~style(color = "grey", font.weigh = "bold")), 
-              area(col = `Mean_2015`:`Mean_2020`) ~ color_tile("white","red"), 
+              area(col = `2015`:`2020`) ~ color_tile("blue","red"), 
               area(col = `Max_2015`:`Max_2020`) ~ color_tile("yellow","red"), 
               area(col = `Range_2015`:`Range_2020`) ~ color_tile("palegreen","green3"), 
-              Depth_2020 = color_bar("pink", 'proportion', 0.2))) 
+              Depth_2020 = color_bar("pink", 'proportion', 0.2))) ; CairnsRegion_Table
 
 CairnsRegion_Table = as.datatable(formattable(CairnsRegion_Table)) %>% 
   formatStyle(colnames(mst_all2), `text-align` = 'right')
@@ -247,7 +247,7 @@ my_temperature_plot <- CairnsTemp4 %>%
   theme_light()+ 
   xlab("Temperature (\u00B0C)") + 
   ylab("Density")+ 
-  ylim(0,0.25)+
+  #ylim(0,0.25)+
   ggtitle("My temperature plot :)")+ 
   labs(fill = "Temperature years") + 
   theme(legend.direction = "horizontal",
@@ -294,3 +294,4 @@ pdf(file = "./files/my_temperature_plot2.pdf",
 my_temperature_plot 
 dev.off()
 
+#--- record these changes ---#
