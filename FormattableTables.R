@@ -9,7 +9,7 @@ library(formattable)
 library(DT)
 library(ggplot2) 
 #--- API Key should be stored, BUT NOT pushed to GitHUB ---#
-usethis::edit_r_environ()
+#usethis::edit_r_environ()
 my_api_key <- Sys.getenv("AIMS_DATAPLATFORM_API_KEY") 
 
 #--- Importing data from AIMS temperature loggers - single site ---#
@@ -23,7 +23,7 @@ head(summary_series_data)
 # Davies
 davies <- aims_data("temp_loggers", 
                        api_key = my_api_key, 
-                       summary = "daily",
+                       #summary = "daily",
                        filters = list(
                          "series" = "DAVSL1",
                          "from_date" = "2010-03-16T00:00:00",
@@ -294,4 +294,11 @@ pdf(file = "./files/my_temperature_plot2.pdf",
 my_temperature_plot 
 dev.off()
 
-#--- record these changes ---#
+#--- 10 minute data instead of daily ---#
+davies <- aims_data("temp_loggers", 
+                    api_key = my_api_key,
+                    filters = list(
+                      "series" = "DAVSL1",
+                      "from_date" = "2013-01-14",
+                      "thru_date" = "2013-01-28"
+                    )) ; head(davies)
