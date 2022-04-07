@@ -298,7 +298,7 @@ dev.off()
 davies <- aims_data("temp_loggers", 
                     api_key = my_api_key,
                     filters = list(
-                      "series" = "DAVSL1",
-                      "from_date" = "2013-01-14",
-                      "thru_date" = "2013-01-28"
+                      series = "DAVSL1",
+                      from_date = "2013-01-14",
+                      thru_date = "2013-01-28"
                     )) ; head(davies)
