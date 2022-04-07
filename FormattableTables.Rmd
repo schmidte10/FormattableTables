@@ -433,3 +433,14 @@ df <- data.frame(ambient_temp_summer = ambient_temp_summer,
 ```
 
 Why are the numbers from the plot and dataframe different?
+
+```{r data_by_10, eval=FALSE}
+#--- 10 minute data instead of daily ---#
+davies <- aims_data("temp_loggers", 
+                    api_key = my_api_key,
+                    filters = list(
+                      series = "DAVSL1",
+                      from_date = "2013-01-14",
+                      thru_date = "2013-01-28"
+                    )) ; head(davies)
+```
