@@ -97,13 +97,13 @@ kable(head(davies), "html") %>%
 CairnsRegion <- aims_data("temp_loggers", 
                        api_key = my_api_key,
                        summary = "summary-by-series", 
-                       filters = list(max_lat = -15.000, 
-                                      min_lat = - 19.000,
+                       filters = list(max_lat = -0.000, 
+                                      min_lat = - 12.000,
                                       max_lon = 150.500, 
                                       min_lon = 143.500, 
-                                      from_date = "2015-01-01", 
+                                      from_date = "2016-01-01", 
                                       thru_date = "2020-12-31"
-                                      )) 
+                                      )) ; CairnsRegion
 ```
 ## Output {.tabset} 
 

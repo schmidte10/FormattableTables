@@ -2,6 +2,7 @@
 library(usethis) 
 library(dataaimsr) 
 library(purrr)
+library(plyr)
 library(tidyverse)
 library(lubridate)
 library(reshape2)
@@ -23,10 +24,10 @@ head(summary_series_data)
 # Davies
 davies <- aims_data("temp_loggers", 
                        api_key = my_api_key, 
-                       #summary = "daily",
+                       summary = "daily",
                        filters = list(
                          "series" = "DAVSL1",
-                         "from_date" = "2010-03-16T00:00:00",
+                         "from_date" = "2015-03-16T00:00:00",
                          "thru_date" = "2020-01-07T00:00:00"
 )) ; head(davies)
 
@@ -34,26 +35,27 @@ davies <- aims_data("temp_loggers",
 CairnsRegion <- aims_data("temp_loggers", 
                        api_key = my_api_key,
                        summary = "summary-by-series", 
-                       filters = list(max_lat = -15.000, 
-                                      min_lat = - 19.000,
+                       filters = list(max_lat = -1.000, 
+                                      min_lat = - 12.000,
                                       max_lon = 150.500, 
                                       min_lon = 143.500, 
                                       from_date = "2015-01-01", 
                                       thru_date = "2020-12-31"
                                       )) 
-unique(CairnsRegion$site); plot(CairnsRegion, ptype = "map") 
+unique(CairnsRegion$site) 
+#plot(CairnsRegion, ptype = "map") 
 
 
 CairnsRegion2 <- aims_data("temp_loggers", 
                           api_key = my_api_key,
                           summary = "summary-by-series", 
-                          filters = list(max_lat = -15.000, 
-                                         min_lat = - 19.000,
+                          filters = list(max_lat = -0.000, 
+                                         min_lat = - 12.000,
                                          max_lon = 147.500, 
                                          min_lon = 145.500, 
                                          from_date = "2015-01-01", 
                                          thru_date = "2020-12-31"
-                          ))  ; plot(CairnsRegion2, ptype = "map") 
+                          ))   #plot(CairnsRegion2, ptype = "map") 
 
 #--- filtering data ---#
 CairnsRegion3 <- CairnsRegion2 %>% 
@@ -110,7 +112,7 @@ save(CairnsTemp2, file="./files/CairnsTemp2.Rda")
 
 #--- formatting data for table ---# 
 #load dataframe
-#load("./files/CairnsTemp2.Rda")  
+load("./files/CairnsTemp2.Rda")  
 #extracting summer months
 summer <- CairnsTemp2 %>%
   filter(MONTH == c(1,2,3,12)); unique(summer$MONTH) 
