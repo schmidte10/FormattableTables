@@ -8,6 +8,8 @@ library(reshape2)
 library(formattable)
 library(DT)
 library(ggplot2) 
+library(sf) 
+library(tmap)
 #--- API Key should be stored, BUT NOT pushed to GitHUB ---#
 #usethis::edit_r_environ()
 my_api_key <- Sys.getenv("AIMS_DATAPLATFORM_API_KEY") 
@@ -56,4 +58,18 @@ gbrdata %>% mapview(xcol= "lon", ycol = "lat", crs = 4269, grid = FALSE)
 # or 
 
 reefs <- st_as_sf(gbrdata, coords = c("lon", "lat"),  crs = 4326)
-reef_map_dk <- mapview(reefs, map.types = "Stamen.Toner")
+reef_map_dk <- mapview(reefs, map.types = "Stamen.Toner") 
+
+# or
+ggplot(data = world) +
+  geom_sf() +
+  geom_point(data = gbrdata, aes(x = lon, y = lat), size = 3, 
+             color = "royalblue4") +
+  coord_sf(xlim = c(140, 160), ylim = c(-8, -25), expand = FALSE) + 
+  theme(panel.background = element_rect(fill = "aliceblue")) + 
+  xlab("Longitude") + 
+  ylab("Latitude")
+
+
+head(gbrdata %>%
+  filter(depth >= 6))
