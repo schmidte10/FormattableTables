@@ -12,7 +12,11 @@ library(shinythemes)
 library(tidyverse)
 library(ggplot2) 
 library(sf) 
+library(dataaimsr)
+library(rnaturalearth)
+library(rnaturalearthdata)
 # get data 
+my_api_key <- Sys.getenv("AIMS_DATAPLATFORM_API_KEY") 
 summary_series_data <- aims_data("temp_loggers", api_key = my_api_key,
                                  summary = "summary-by-series")
 
@@ -45,13 +49,16 @@ ui <- fluidPage(
             sliderInput("lat",
                         "Latitude:",
                         min = -45,
-                        max = 0,
-                        value = c(-45,0), pre = "\u00B0"), 
+                        max = -8,
+                        step = 0.5,
+                        value = c(-25,-8), pre = "\u00B0"), 
             sliderInput("lon", 
                         "Longitude:",
                         min = 140,
                         max = 155,
-                        value = c(142,150), pre = "\u00B0"), 
+                        value = c(142,150),
+                        step = 0.5,
+                        pre = "\u00B0"), 
             sliderInput("depth", 
                         "depth", 
                         min = 0, 
@@ -80,21 +87,32 @@ server <- function(input, output, session) {
   gbrdata_slider_Finder <- reactive({ 
         gbrdata %>% 
       filter(depth >= input$depth[1],depth <= input$depth[2], 
-             lat >= input$lat[1], lat <= input$lat[2])
+             lat >= input$lat[1], lat <= input$lat[2], 
+             lon >= input$lon[1], lon <= input$lon[2], 
+             YEAR >= input$YEAR[1], YEAR <= input$YEAR[2])
     
   }) 
   
   
   output$plot <-renderPlot({ 
+    world <- ne_countries(scale = "medium", returnclass = "sf")
     ggplot(data = world) +
-    geom_sf() +
-    geom_point(data = gbrdata_slider_Finder(), aes(x = lon, y = lat), size = 3, 
-               color = "royalblue4") +
-    coord_sf(xlim = c(140, 160), ylim = c(-8, -25), expand = FALSE) + 
-    theme(panel.background = element_rect(fill = "aliceblue")) + 
-    xlab("Longitude") + 
-    ylab("Latitude") 
-    
+      geom_sf() +
+      geom_point(data = gbrdata_slider_Finder(), aes(x = lon, y = lat, colour = depth), size = 3)+
+      scale_color_gradient(low = "steelblue", high = "yellow")+
+      coord_sf(xlim = c((min(gbrdata_slider_Finder()$lon)-1), 
+                         (max(gbrdata_slider_Finder()$lon)+1)),
+                        ylim = c((min(gbrdata_slider_Finder()$lat)-1), 
+                                 (max(gbrdata_slider_Finder()$lat)+1)), 
+                        expand = FALSE) +
+      theme(panel.background = element_rect(fill = "aliceblue")) + 
+      xlab("Longitude") + 
+      ylab("Latitude")
+      #geom_rect(data = gbrdata_slider_Finder(), aes(xmin=min(input$lon), 
+                                                   # xmax=max(input$lon), 
+                                                   # ymin=min(input$lat), 
+                                                   # ymax=max(input$lat)), 
+               # fill=NA, colour = "black")
     })
 }
   

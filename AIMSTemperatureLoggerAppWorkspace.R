@@ -10,6 +10,8 @@ library(DT)
 library(ggplot2) 
 library(sf) 
 library(tmap)
+library(rnaturalearth)
+library(rnaturalearthdata)
 #--- API Key should be stored, BUT NOT pushed to GitHUB ---#
 #usethis::edit_r_environ()
 my_api_key <- Sys.getenv("AIMS_DATAPLATFORM_API_KEY") 
@@ -61,11 +63,13 @@ reefs <- st_as_sf(gbrdata, coords = c("lon", "lat"),  crs = 4326)
 reef_map_dk <- mapview(reefs, map.types = "Stamen.Toner") 
 
 # or
+world <- ne_countries(scale = "medium", returnclass = "sf")
+class(world)
 ggplot(data = world) +
   geom_sf() +
-  geom_point(data = gbrdata, aes(x = lon, y = lat), size = 3, 
-             color = "royalblue4") +
-  coord_sf(xlim = c(140, 160), ylim = c(-8, -25), expand = FALSE) + 
+  geom_point(data = gbrdata, aes(x = lon, y = lat, colour=depth), size = 3)+
+  scale_color_gradient(low = "steelblue", high = "yellow")+
+  coord_sf(xlim = c(min(gbrdata$lon),max(gbrdata$lon)), ylim = c(-5, -25.7), expand = FALSE) +
   theme(panel.background = element_rect(fill = "aliceblue")) + 
   xlab("Longitude") + 
   ylab("Latitude")
