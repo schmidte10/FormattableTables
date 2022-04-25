@@ -7,8 +7,41 @@
 #    http://shiny.rstudio.com/
 #
 
+
 library(shiny)
+library(shinythemes)
+library(tidyverse)
+library(ggplot2) 
+library(sf) 
+library(dataaimsr)
+library(rnaturalearth)
+library(rnaturalearthdata) 
+library(ozmaps)
+library(cowplot)
 library(shinydashboard)
+library(ggh4x)
+# get data 
+my_api_key <- Sys.getenv("AIMS_DATAPLATFORM_API_KEY") 
+summary_series_data <- aims_data("temp_loggers", api_key = my_api_key,
+                                 summary = "summary-by-series")
+
+gbrdata <- as.data.frame(summary_series_data) %>% 
+    drop_na(lat) %>% 
+    drop_na(lon) %>% 
+    separate(time_coverage_start, 
+             sep="-", 
+             remove=FALSE, 
+             into = c("START_YEAR", "START_MONTH", "START_DAY"))%>%  
+    mutate(YEAR = as.numeric(START_YEAR), 
+           MONTH = as.numeric(START_MONTH), 
+           DAY = as.numeric(START_DAY)) %>% 
+    separate(time_coverage_end, 
+             sep="-", 
+             remove=FALSE, 
+             into = c("END_YEAR", "END_MONTH", "END_DAY"))%>%  
+    mutate(YEAR = as.numeric(END_YEAR), 
+           MONTH = as.numeric(END_MONTH), 
+           DAY = as.numeric(END_DAY)) 
 # Define UI for application that draws a histogram
 ui <- dashboardPage(
     dashboardHeader(title = "GBR Temperature Logger"),
@@ -39,17 +72,82 @@ ui <- dashboardPage(
                             "YEAR", 
                             min = 1991, 
                             max = 2022, 
-                            value = c(1991, 2022), sep=""), 
+                            value = c(1991, 2022), sep=""),  
+                textInput("REEF", 
+                        label = "Reef search",
+                        value = "Type reef name here"),
                 selectInput("heatwave_yr", "Heatwave data", 
                             choices = c("All","Heatwave years", "Ambient years", "Heatwave vs. Ambient")), 
-                height = 550, width = 2), 
-        box(plotOutput("plot"),height = 550))
+                height = 650, width = 3), 
+        box(plotOutput("plot"), 
+            height = 650, width = 3), 
+        box(plotOutput("oz_plot"), 
+            height = 320, width = 3)), 
+        
+        fluidRow( 
+            
+        box(DT::dataTableOutput('table'), 
+            width = 12)
+            
+        )
+        )
+    )
 
-           
-            ))
 
-
-server <- function(input, output) { }
+server <- function(input, output, session) { 
+    
+    gbrdata_slider_Finder <- reactive({ 
+        gbrdata %>% 
+            filter(depth >= input$depth[1],depth <= input$depth[2], 
+                   lat >= input$lat[1], lat <= input$lat[2], 
+                   lon >= input$lon[1], lon <= input$lon[2], 
+                   YEAR >= input$YEAR[1], YEAR <= input$YEAR[2])
+        
+    }) 
+    
+    
+    output$plot <-renderPlot({ 
+        world <- ne_countries(scale = "medium", returnclass = "sf")
+        ggplot(data = world) +
+            geom_sf() +
+            geom_point(data = gbrdata_slider_Finder(), aes(x = lon, y = lat, colour = depth), size = 3)+
+            scale_color_gradient(low = "cyan1", high = "black", limits = c(0,25))+
+            coord_sf(xlim = c((min(gbrdata_slider_Finder()$lon)-1), 
+                              (max(gbrdata_slider_Finder()$lon)+1)),
+                     ylim = c((min(gbrdata_slider_Finder()$lat)-1), 
+                              (max(gbrdata_slider_Finder()$lat)+1)), 
+                     expand = FALSE) +
+            theme(panel.background = element_rect(fill = "aliceblue"), 
+                  legend.position = c(0.8,0.95), 
+                  legend.direction = "horizontal", 
+                  plot.margin = unit(c(0, 0, 0, 0), "pt")) + 
+            xlab("Longitude") + 
+            ylab("Latitude")  +
+            force_panelsizes(rows = unit(7, "in"),
+                             cols = unit(5, "in"))
+    }, height = 600, width = 400) 
+    
+    output$oz_plot <- renderPlot({ 
+        oz_states <- ozmaps::ozmap_states
+        ggplot(oz_states) + 
+            geom_sf() + 
+            coord_sf() +
+            theme(panel.background = element_rect(fill = "aliceblue", color = "black"), 
+            axis.text = element_blank(), 
+            axis.ticks=element_blank())+  
+            geom_rect(data = gbrdata_slider_Finder(), aes(xmin=min(input$lon),  
+                                                          xmax=max(input$lon), 
+                                                          ymin=min(input$lat), 
+                                                          ymax=max(input$lat)), 
+            fill=NA, colour = "red") 
+            
+        
+        }, height = 300, width = 430)
+    
+    output$table <- renderDT(gbrdata_slider_Finder())
+   
+    
+    }
 
 
 

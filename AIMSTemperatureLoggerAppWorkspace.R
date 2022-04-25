@@ -14,6 +14,7 @@ library(rnaturalearth)
 library(rnaturalearthdata) 
 library(ozmaps)
 library(cowplot)
+
 #--- API Key should be stored, BUT NOT pushed to GitHUB ---#
 #usethis::edit_r_environ()
 my_api_key <- Sys.getenv("AIMS_DATAPLATFORM_API_KEY") 
@@ -72,9 +73,11 @@ reef_plot <- ggplot(data = world) +
   geom_point(data = gbrdata, aes(x = lon, y = lat, colour=depth), size = 3)+
   scale_color_gradient(low = "cyan1", high = "black", limits = c(0,25))+
   coord_sf(xlim = c(min(gbrdata$lon),max(gbrdata$lon)), ylim = c(-5, -25.7), expand = FALSE) +
-  theme(panel.background = element_rect(fill = "aliceblue")) + 
+  theme(panel.background = element_rect(fill = "aliceblue"), 
+        legend.position = c(0.7,0.9), 
+        legend.direction = "horizontal") + 
   xlab("Longitude") + 
-  ylab("Latitude") ; reef_plot
+  ylab("Latitude")  ; reef_plot
 
 oz_states <- ozmaps::ozmap_states
 oz_map_1 <- ggplot(oz_states) + 

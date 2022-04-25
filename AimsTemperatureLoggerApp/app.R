@@ -17,7 +17,8 @@ library(rnaturalearth)
 library(rnaturalearthdata) 
 library(ozmaps)
 library(cowplot)
-library(shinydashboard)
+library(shinydashboard) 
+library(DT)
 # get data 
 my_api_key <- Sys.getenv("AIMS_DATAPLATFORM_API_KEY") 
 summary_series_data <- aims_data("temp_loggers", api_key = my_api_key,
@@ -91,7 +92,8 @@ ui <- dashboardPage(
 
         # Show a plot of the generated distribution
         mainPanel(plotOutput("plot"), 
-                  width = 4))
+                  width = 4, 
+                  DT::dataTableOutput("mytable1")))
           )))
 
 
