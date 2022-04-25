@@ -14,7 +14,9 @@ library(ggplot2)
 library(sf) 
 library(dataaimsr)
 library(rnaturalearth)
-library(rnaturalearthdata)
+library(rnaturalearthdata) 
+library(ozmaps)
+library(cowplot)
 # get data 
 my_api_key <- Sys.getenv("AIMS_DATAPLATFORM_API_KEY") 
 summary_series_data <- aims_data("temp_loggers", api_key = my_api_key,
@@ -46,9 +48,11 @@ ui <- fluidPage(
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
         sidebarPanel(
+          textInput("api_key", "API Key","Enter your API Key here", width = NULL,
+                    verbatimTextOutput("value")),
             sliderInput("lat",
                         "Latitude:",
-                        min = -45,
+                        min = -25,
                         max = -8,
                         step = 0.5,
                         value = c(-25,-8), pre = "\u00B0"), 
@@ -70,7 +74,8 @@ ui <- fluidPage(
                         max = 2022, 
                         value = c(1991, 2022), sep=""), 
             selectInput("heatwave_yr", "Heatwave data", 
-                        choices = c("All","Heatwave years", "Ambient years", "Heatwave vs. Ambient"))
+                        choices = c("All","Heatwave years", "Ambient years", "Heatwave vs. Ambient")) 
+            
         ),
 
         # Show a plot of the generated distribution
@@ -96,10 +101,10 @@ server <- function(input, output, session) {
   
   output$plot <-renderPlot({ 
     world <- ne_countries(scale = "medium", returnclass = "sf")
-    ggplot(data = world) +
+    reef_plot <- ggplot(data = world) +
       geom_sf() +
       geom_point(data = gbrdata_slider_Finder(), aes(x = lon, y = lat, colour = depth), size = 3)+
-      scale_color_gradient(low = "steelblue", high = "yellow")+
+      scale_color_gradient(low = "cyan1", high = "black", limits = c(0,25))+
       coord_sf(xlim = c((min(gbrdata_slider_Finder()$lon)-1), 
                          (max(gbrdata_slider_Finder()$lon)+1)),
                         ylim = c((min(gbrdata_slider_Finder()$lat)-1), 
@@ -107,12 +112,26 @@ server <- function(input, output, session) {
                         expand = FALSE) +
       theme(panel.background = element_rect(fill = "aliceblue")) + 
       xlab("Longitude") + 
-      ylab("Latitude")
-      #geom_rect(data = gbrdata_slider_Finder(), aes(xmin=min(input$lon), 
-                                                   # xmax=max(input$lon), 
-                                                   # ymin=min(input$lat), 
-                                                   # ymax=max(input$lat)), 
-               # fill=NA, colour = "black")
+      ylab("Latitude") 
+    
+    oz_states <- ozmaps::ozmap_states
+    oz_map_1 <- ggplot(oz_states) + 
+      geom_sf() + 
+      coord_sf() +
+      theme(panel.background = element_rect(fill = "aliceblue", color = "black"), 
+            axis.text = element_blank(), 
+            axis.ticks=element_blank())+  
+      geom_rect(data = gbrdata_slider_Finder(), aes(xmin=min(input$lon),  
+                                                    xmax=max(input$lon), 
+                                                    ymin=min(input$lat), 
+                                                    ymax=max(input$lat)), 
+       fill=NA, colour = "red") 
+    
+    gg_insert_map <-  ggdraw() + 
+      draw_plot(reef_plot) + 
+      draw_plot(oz_map_1, x = 0.25, y = 0.05, width = 0.25, height = 0.25)
+    gg_insert_map
+    
     })
 }
   
