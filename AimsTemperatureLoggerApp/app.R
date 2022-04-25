@@ -17,6 +17,7 @@ library(rnaturalearth)
 library(rnaturalearthdata) 
 library(ozmaps)
 library(cowplot)
+library(shinydashboard)
 # get data 
 my_api_key <- Sys.getenv("AIMS_DATAPLATFORM_API_KEY") 
 summary_series_data <- aims_data("temp_loggers", api_key = my_api_key,
@@ -40,13 +41,23 @@ gbrdata <- as.data.frame(summary_series_data) %>%
          MONTH = as.numeric(END_MONTH), 
          DAY = as.numeric(END_DAY)) 
 # Define UI for application that draws a histogram
-ui <- fluidPage(
-    
+ui <- dashboardPage(
+#--- navigation panels ---#
     navbarPage("GBR Temperature Data", theme = shinytheme("yeti"),
-               tabPanel("Regional data", fluid = TRUE, icon = icon("globe-americas"),
+               tabPanel("Regional data", fluid = TRUE, icon = icon("globe-americas"), 
+#--- page layout ---#                     
+    #tags$head(
+      #tags$style(type="text/css", "select { max-width: 240px; }"),
+      #tags$style(type="text/css", ".span4 { max-width: 290px; }"),
+      #tags$style(type="text/css", ".well { max-width: 280px; }")), 
 
-    # Sidebar with a slider input for number of bins 
-    sidebarLayout(
+# or 
+
+    
+#--- Sidebars ---#
+    sidebarLayout(position = "left", 
+               
+                        
         sidebarPanel(
           textInput("api_key", "API Key","Enter your API Key here", width = NULL,
                     verbatimTextOutput("value")),
@@ -74,14 +85,14 @@ ui <- fluidPage(
                         max = 2022, 
                         value = c(1991, 2022), sep=""), 
             selectInput("heatwave_yr", "Heatwave data", 
-                        choices = c("All","Heatwave years", "Ambient years", "Heatwave vs. Ambient")) 
-            
+                        choices = c("All","Heatwave years", "Ambient years", "Heatwave vs. Ambient")), 
+            width = 2
         ),
 
         # Show a plot of the generated distribution
-        mainPanel( 
-          plotOutput("plot"))
-          ))))
+        mainPanel(plotOutput("plot"), 
+                  width = 4))
+          )))
 
 
 
@@ -130,9 +141,9 @@ server <- function(input, output, session) {
     gg_insert_map <-  ggdraw() + 
       draw_plot(reef_plot) + 
       draw_plot(oz_map_1, x = 0.25, y = 0.05, width = 0.25, height = 0.25)
-    gg_insert_map
+    gg_insert_map + coord_fixed(ratio = 2)
     
-    })
+    }, width = 500, height = 700)
 }
   
 
